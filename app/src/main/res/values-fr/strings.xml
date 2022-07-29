@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kotlin MVVM Retrofit Glide Example</string>
+    <string name="author">Auteur: </string>
+    <string name="subscribers_count">Les abonnés comptent: </string>
+
+    <!-- Errors -->
+    <string name="no_internet">Pas de connexion Internet</string>
+    <string name="no_data_found">Aucun article trouvé. Merci d\'essayer plus tard</string>
+    <string name="unexpected_error">Une erreur inattendue est apparue. Merci d\'essayer plus tard</string>
+    <string name="no_application_to_open_link">Vous n\'avez pas d\'application pour ouvrir ce lien</string>
+</resources>
