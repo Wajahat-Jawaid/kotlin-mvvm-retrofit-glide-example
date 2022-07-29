@@ -69,6 +69,7 @@ public class PostsListFragment extends Fragment implements OnPostClickListener {
             showErrorView(R.string.no_internet);
             return;
         }
+
         mViewModel.getPosts().observe(getViewLifecycleOwner(), response -> {
             if (response.getStatus() == Status.SUCCESS) {
                 // If though API succeeded, but maybe no posts are present for now, then we need to display the
@@ -130,7 +131,7 @@ public class PostsListFragment extends Fragment implements OnPostClickListener {
     private void mapDataOnRecyclerView(List<PostAdapterModel> posts) {
         RecyclerView recyclerView = requireView().findViewById(R.id.recycler_view);
         recyclerView.addItemDecoration(new VerticalItemDecoration(requireContext(), 1));
-        recyclerView.setAdapter(new PostsAdapter(posts, mPostsRepository, this));
+        recyclerView.setAdapter(new PostsAdapter(posts, getViewLifecycleOwner(), mViewModel, this));
     }
 
     private void showErrorView(@StringRes int msg) {
