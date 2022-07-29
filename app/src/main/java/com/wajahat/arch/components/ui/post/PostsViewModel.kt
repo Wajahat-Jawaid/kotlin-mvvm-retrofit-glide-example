@@ -3,6 +3,7 @@ package com.wajahat.arch.components.ui.post
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.wajahat.arch.components.data.model.Post
+import com.wajahat.arch.components.data.model.response.SubscribersCountResponse
 import com.wajahat.arch.components.data.repository.PostsRepository
 import com.wajahat.arch.components.utils.Resource
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,24 @@ class PostsViewModel(private val repository: PostsRepository) : ViewModel() {
             emit(Resource.error(data = null, message = exception.message ?: "Error!!!"))
         }
     }
+
+    fun getSubscribersCount1(blogUrl: String){
+
+    }
+
+    fun getSubscribersCount(blogUrl: String) = liveData(Dispatchers.IO) {
+        try {
+            emit(Resource.success(data = repository.getSubscribersCount(blogUrl)))
+        } catch (exception: Exception) {
+            emit(Resource.error(data = null, message = exception.message ?: "Error!!!"))
+        }
+    }
+
+
+
+//    fun getSubscribersCount(blogUrl: String) : SubscribersCountResponse {
+//        return repository.getSubscribersCount(blogUrl)
+//    }
 
     /** Calculate the difference between two post's date */
     fun isNewDay(previousPost: Post, currentPost: Post): Boolean {

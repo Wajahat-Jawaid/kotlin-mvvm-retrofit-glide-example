@@ -4,26 +4,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.android.material.imageview.ShapeableImageView
 import com.wajahat.arch.components.R
 import com.wajahat.arch.components.data.model.Post
 import com.wajahat.arch.components.data.model.Post.Companion.INVALID_COUNT
 import com.wajahat.arch.components.data.model.PostAdapterModel
 import com.wajahat.arch.components.data.model.PostHeader
-import com.wajahat.arch.components.data.model.response.SubscribersCountResponse
-import com.wajahat.arch.components.data.repository.PostsRepository
 import com.wajahat.arch.components.utils.OnPostClickListener
 import com.wajahat.arch.components.utils.PostUtils.formatHtml
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.android.material.imageview.ShapeableImageView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.wajahat.arch.components.utils.Status
 
 class PostsAdapter(
     private val posts: List<PostAdapterModel>,
-    private val repository: PostsRepository,
+    private val viewLifecycleOwner: LifecycleOwner,
+    private val viewModel: PostsViewModel,
     private val clickListener: OnPostClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -71,14 +69,7 @@ class PostsAdapter(
                 // particular post, repeated call to fetch the subscribers count is never made.
                 if (item.subscribersCount == INVALID_COUNT) {
                     item.author.getUrl().host?.let { host ->
-                        // Spawn an IO thread to call the API
-                        GlobalScope.launch(Dispatchers.IO) {
-                            try {
-                                setSubscribersCount(itemView, item, getSubscribersCount(host))
-                            } catch (e: Exception) {
-                                setSubscribersCount(itemView, item, SubscribersCountResponse(-1))
-                            }
-                        }
+                        getSubscribersCount(itemView, item, host)
                     }
                 } else {
                     // If the subscribers count is already fetched, set from the variable rather than setting from API
@@ -90,19 +81,14 @@ class PostsAdapter(
                 }
             }
         }
-    }
 
-    private suspend fun getSubscribersCount(blogUrl: String): SubscribersCountResponse {
-        return repository.getSubscribersCount(blogUrl)
-    }
-
-    private fun setSubscribersCount(itemView: View, post: Post, response: SubscribersCountResponse) {
-        // Switching back to the Main thread after IO to set the data to the view.
-        GlobalScope.launch(Dispatchers.Main) {
-            itemView.apply {
-                response.subscribersCount?.let { count ->
-                    post.subscribersCount = count
-                    findViewById<TextView>(R.id.subscribers_count).text = count.toString()
+        private fun getSubscribersCount(itemView: View, post: Post, blogUrl: String) {
+            viewModel.getSubscribersCount(blogUrl).observe(viewLifecycleOwner) { response ->
+                if (response.status == Status.SUCCESS) {
+                    response.data?.subscribersCount?.let { count ->
+                        post.subscribersCount = count
+                        itemView.findViewById<TextView>(R.id.subscribers_count).text = count.toString()
+                    }
                 }
             }
         }
